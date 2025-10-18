@@ -8,17 +8,31 @@
    pip install -r requirements.txt
    ```
 
-2. **Add sample video:**
+2. **Install MiDaS for depth estimation:**
+   ```bash
+   python install_midas.py
+   ```
+
+3. **Add sample video:**
    - Place a room video in `sample_input/` directory
    - Supported formats: .mp4, .avi, .mov, .mkv
    - Recommended: 10-30 seconds, 720p-1080p, good lighting
 
-3. **Run the backend:**
+4. **Test the pipeline:**
+   ```bash
+   # Test video processing
+   python test_video_processing.py
+   
+   # Test depth estimation
+   python test_depth_estimation.py
+   ```
+
+5. **Run the backend:**
    ```bash
    python run.py
    ```
 
-4. **Test the API:**
+6. **Test the API:**
    - API docs: http://localhost:8000/docs
    - Health check: http://localhost:8000/health
    - List samples: http://localhost:8000/api/samples
@@ -73,6 +87,7 @@ backend/
 
 1. Add your room video to `sample_input/`
 2. Run `python test_video_processing.py` to test frame extraction
-3. Start the server with `python run.py`
-4. Test the API endpoints
-5. Ready for depth estimation implementation!
+3. Run `python test_depth_estimation.py` to test depth estimation
+4. Start the server with `python run.py`
+5. Test the API endpoints
+6. Ready for 3D reconstruction implementation!
