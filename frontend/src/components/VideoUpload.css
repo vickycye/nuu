@@ -1,0 +1,99 @@
+.video-upload {
+  max-width: 600px;
+  width: 100%;
+}
+
+.upload-area {
+  border: 3px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.upload-content {
+  color: white;
+}
+
+.upload-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.upload-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+}
+
+.upload-content p {
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.upload-hint {
+  font-size: 0.9rem !important;
+  opacity: 0.7 !important;
+}
+
+.upload-tips {
+  margin-top: 2rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.upload-tips h4 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.upload-tips ul {
+  list-style: none;
+  padding: 0;
+}
+
+.upload-tips li {
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.upload-tips li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .upload-area {
+    padding: 2rem 1rem;
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+  }
+  
+  .upload-content h3 {
+    font-size: 1.3rem;
+  }
+  
+  .upload-tips {
+    padding: 1rem;
+  }
+}
