@@ -1,4 +1,4 @@
-from pydantic import BaseModel # python library used  for data validation and settings management
+from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from enum import Enum
 from datetime import datetime
@@ -29,3 +29,16 @@ class JobUpdate(BaseModel):
     message: str
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
+
+class UploadResponse(BaseModel):
+    job_id: str
+    status: str
+    message: str
+
+class StatusResponse(BaseModel):
+    job_id: str
+    status: str
+    progress: int
+    message: str
+    error: Optional[str] = None
+    updated_at: datetime
