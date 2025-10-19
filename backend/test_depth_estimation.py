@@ -8,7 +8,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-# Add the app directory to Python path
+# add the app directory to Python path
 sys.path.append(str(Path(__file__).parent / "app"))
 
 from app.utils.depth_estimator import DepthEstimator
@@ -61,9 +61,9 @@ async def test_depth_estimation():
     # Initialize depth estimator
     try:
         depth_estimator = DepthEstimator(settings.DEPTH_MAPS_DIR)
-        logger.info("✅ Depth estimator initialized successfully")
+        logger.info("Depth estimator initialized successfully")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize depth estimator: {str(e)}")
+        logger.error(f"x Failed to initialize depth estimator: {str(e)}")
         logger.info("This might be due to missing MiDaS dependencies")
         logger.info("Try installing: pip install torch torchvision timm")
         return
@@ -76,7 +76,7 @@ async def test_depth_estimation():
         # Test single frame depth estimation
         logger.info("Testing single frame depth estimation...")
         result = depth_estimator.estimate_depth(str(test_frames[0]), "test_depth", 0)
-        logger.info(f"✅ Single frame depth estimation successful")
+        logger.info(f"Single frame depth estimation successful")
         logger.info(f"Depth range: {result['depth_range']}")
         
         # Test batch depth estimation
@@ -84,7 +84,7 @@ async def test_depth_estimation():
         frame_paths = [str(frame) for frame in test_frames]
         batch_results = depth_estimator.estimate_depth_batch(frame_paths, "test_batch")
         
-        logger.info(f"✅ Batch depth estimation successful: {len(batch_results)} depth maps generated")
+        logger.info(f"Batch depth estimation successful: {len(batch_results)} depth maps generated")
         
         # Get depth statistics
         stats = depth_estimator.get_depth_statistics("test_batch")
@@ -100,11 +100,11 @@ async def test_depth_estimation():
         if len(depth_maps) > 5:
             logger.info(f"  ... and {len(depth_maps) - 5} more depth maps")
         
-        logger.info("✅ Depth estimation test completed successfully!")
-        logger.info("🎯 Ready for 3D reconstruction implementation!")
+        logger.info("Depth estimation test completed successfully!")
+        logger.info("Ready for 3D reconstruction implementation!")
         
     except Exception as e:
-        logger.error(f"❌ Depth estimation test failed: {str(e)}")
+        logger.error(f"x Depth estimation test failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

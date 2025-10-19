@@ -27,11 +27,11 @@ def download_file(url: str, filepath: Path) -> bool:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         
-        logger.info(f"✅ Downloaded {filepath.name}")
+        logger.info(f"Downloaded {filepath.name}")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Failed to download {url}: {str(e)}")
+        logger.error(f"x Failed to download {url}: {str(e)}")
         return False
 
 def download_midas_weights():
@@ -56,18 +56,18 @@ def download_midas_weights():
         
         # Skip if already exists
         if filepath.exists():
-            logger.info(f"⏭️  {model_name} already exists, skipping")
+            logger.info(f"⏭ {model_name} already exists, skipping")
             continue
         
         if download_file(url, filepath):
             downloaded_count += 1
     
     if downloaded_count > 0:
-        logger.info(f"✅ Successfully downloaded {downloaded_count} model weights")
+        logger.info(f"Successfully downloaded {downloaded_count} model weights")
     else:
-        logger.info("ℹ️  All model weights already exist")
+        logger.info("ℹAll model weights already exist")
     
-    logger.info("🎯 Ready to use MiDaS for depth estimation!")
+    logger.info("Ready to use MiDaS for depth estimation!")
 
 if __name__ == "__main__":
     download_midas_weights()

@@ -67,7 +67,7 @@ def rename_frames():
     if renamed_count > 5:
         logger.info(f"... and {renamed_count - 5} more frames renamed")
     
-    logger.info(f"✅ Successfully renamed {renamed_count} frames")
+    logger.info(f"Successfully renamed {renamed_count} frames")
     logger.info("Now you can run test_depth_estimation.py")
 
 if __name__ == "__main__":

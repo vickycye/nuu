@@ -95,10 +95,10 @@ async def test_video_processing():
         else:
             logger.warning("No frame files found in frames directory")
         
-        logger.info("✅ Video processing test completed successfully!")
+        logger.info("Video processing test completed successfully!")
         
     except Exception as e:
-        logger.error(f"❌ Video processing test failed: {str(e)}")
+        logger.error(f"x Video processing test failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

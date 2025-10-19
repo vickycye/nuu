@@ -177,7 +177,7 @@ function App() {
 
         {status === 'error' && (
           <div className="error-container">
-            <h3>❌ Processing Failed</h3>
+            <h3>Processing Failed</h3>
             <p>{error}</p>
             <button onClick={resetApp} className="reset-button">
               Try Again

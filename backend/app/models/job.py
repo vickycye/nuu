@@ -20,9 +20,9 @@ class JobInfo(BaseModel):
     created_at: datetime
     updated_at: datetime
     error: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None #used to send any additional information to the frontend
+    metadata: Optional[Dict[str, Any]] = None #send any additional information to the frontend
 
-# used to update the job status and progress
+# update the job status and progress
 class JobUpdate(BaseModel):
     status: JobStatus
     progress: int

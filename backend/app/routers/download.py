@@ -17,7 +17,7 @@ async def download_model(job_id: str, format: str = "glb"):
     Download completed 3D model
     """
     try:
-        # Get job info
+        # get job info
         job_info = job_db.get_job(job_id)
         if not job_info:
             raise HTTPException(status_code=404, detail="Job not found")
@@ -28,10 +28,10 @@ async def download_model(job_id: str, format: str = "glb"):
                 detail=f"Job not completed. Current status: {job_info.status}"
             )
         
-        # Get model paths from metadata
+        # get model paths from metadata
         model_paths = job_info.metadata.get('model_paths', {})
         
-        # Determine file path based on format
+        # determine file path based on format
         if format == "glb" and "glb" in model_paths:
             file_path = Path(model_paths["glb"])
         elif format == "obj" and "obj" in model_paths:
@@ -39,7 +39,7 @@ async def download_model(job_id: str, format: str = "glb"):
         elif format == "ply" and "pointcloud" in model_paths:
             file_path = Path(model_paths["pointcloud"])
         else:
-            # Default to GLB, fallback to OBJ, then PLY
+            # default to GLB, fallback to OBJ, then PLY
             if "glb" in model_paths:
                 file_path = Path(model_paths["glb"])
                 format = "glb"
@@ -52,11 +52,11 @@ async def download_model(job_id: str, format: str = "glb"):
             else:
                 raise HTTPException(status_code=404, detail="No model files found")
         
-        # Check if file exists
+        # check if file exists
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Model file not found")
         
-        # Set appropriate media type
+        # set appropriate media type
         media_types = {
             "glb": "model/gltf-binary",
             "obj": "application/obj",
@@ -86,7 +86,7 @@ async def get_model_info(job_id: str):
     Get information about the 3D model
     """
     try:
-        # Get job info
+        # get job info
         job_info = job_db.get_job(job_id)
         if not job_info:
             raise HTTPException(status_code=404, detail="Job not found")
@@ -97,12 +97,12 @@ async def get_model_info(job_id: str):
                 detail=f"Job not completed. Current status: {job_info.status}"
             )
         
-        # Extract model information
+        # extract model information
         metadata = job_info.metadata or {}
         reconstruction_result = metadata.get('reconstruction_result', {})
         model_paths = metadata.get('model_paths', {})
         
-        # Get file sizes
+        # get file sizes
         file_sizes = {}
         for format_name, path in model_paths.items():
             file_path = Path(path)
@@ -139,7 +139,7 @@ async def download_camera_poses(job_id: str):
     Download camera poses data
     """
     try:
-        # Get job info
+        # get job info
         job_info = job_db.get_job(job_id)
         if not job_info:
             raise HTTPException(status_code=404, detail="Job not found")
@@ -150,7 +150,7 @@ async def download_camera_poses(job_id: str):
                 detail=f"Job not completed. Current status: {job_info.status}"
             )
         
-        # Get poses file path
+        # get poses file path
         model_paths = job_info.metadata.get('model_paths', {})
         if "poses" not in model_paths:
             raise HTTPException(status_code=404, detail="Camera poses not found")

@@ -16,7 +16,7 @@ class JobDatabase:
         return cls._instance
     
     def __init__(self):
-        # Use class variable instead of instance variable
+        # use class variable instead of instance variable
         pass
     
     @property

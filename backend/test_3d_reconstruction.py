@@ -45,9 +45,9 @@ async def test_3d_reconstruction():
     # Initialize 3D reconstruction
     try:
         reconstruction_3d = Reconstruction3D(settings.MODELS_DIR)
-        logger.info("✅ 3D reconstruction engine initialized successfully")
+        logger.info("3D reconstruction engine initialized successfully")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize 3D reconstruction: {str(e)}")
+        logger.error(f"x Failed to initialize 3D reconstruction: {str(e)}")
         return
     
     # Prepare test data
@@ -75,7 +75,7 @@ async def test_3d_reconstruction():
         logger.info("Testing 3D reconstruction...")
         result = reconstruction_3d.reconstruct_3d_model(job_id, frame_data, depth_data)
         
-        logger.info(f"✅ 3D reconstruction completed successfully!")
+        logger.info(f"3D reconstruction completed successfully!")
         logger.info(f"Point cloud size: {result['point_cloud_size']} points")
         logger.info(f"Mesh faces: {result['mesh_faces']}")
         logger.info(f"Camera poses: {result['camera_poses']}")
@@ -90,15 +90,15 @@ async def test_3d_reconstruction():
         
         # Check specific file types
         model_paths = result['model_paths']
-        logger.info(f"✅ Generated model files: {len(model_paths)}")
+        logger.info(f"Generated model files: {len(model_paths)}")
         for model_type in model_paths:
             logger.info(f"  - {model_type}")
         
-        logger.info("🎯 3D reconstruction test completed successfully!")
-        logger.info("🚀 Ready for frontend integration!")
+        logger.info("3D reconstruction test completed successfully!")
+        logger.info("Ready for frontend integration!")
         
     except Exception as e:
-        logger.error(f"❌ 3D reconstruction test failed: {str(e)}")
+        logger.error(f"x 3D reconstruction test failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

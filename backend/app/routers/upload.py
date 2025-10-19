@@ -111,13 +111,13 @@ async def upload_sample_video(
                 detail=f"Sample video '{sample_name}' not found. Available samples: {available_samples}"
             )
         
-        # Generate job ID
+        # generate job ID
         job_id = str(uuid.uuid4())
         
-        # Copy sample to uploads directory
+        # copy sample to uploads directory
         file_path = await file_manager.copy_sample_file(sample_path, job_id)
         
-        # Create job record
+        # create job record
         job_info = JobInfo(
             job_id=job_id,
             status=JobStatus.UPLOADED,
@@ -134,7 +134,7 @@ async def upload_sample_video(
         )
         job_db.create_job(job_info)
         
-        # Start background processing
+        # tart background processing
         background_tasks.add_task(processing_pipeline.process_video, job_id, str(file_path))
         
         logger.info(f"Sample video uploaded successfully for job {job_id}")

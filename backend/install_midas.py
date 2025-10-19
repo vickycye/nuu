@@ -16,7 +16,7 @@ def install_midas():
     
     try:
         # Install PyTorch dependencies
-        print("📦 Installing PyTorch dependencies...")
+        print("Installing PyTorch dependencies...")
         subprocess.check_call([
             sys.executable, "-m", "pip", "install", 
             "torch", "torchvision", "timm"
@@ -29,30 +29,30 @@ def install_midas():
         # Clone MiDaS repository
         midas_dir = models_dir / "midas"
         if not midas_dir.exists():
-            print("📥 Cloning MiDaS repository...")
+            print("Cloning MiDaS repository...")
             subprocess.check_call([
                 "git", "clone", 
                 "https://github.com/isl-org/MiDaS.git",
                 str(midas_dir)
             ])
         else:
-            print("✅ MiDaS repository already exists")
+            print("MiDaS repository already exists")
         
         # Install additional dependencies
-        print("📦 Installing additional dependencies...")
+        print("Installing additional dependencies...")
         subprocess.check_call([
             sys.executable, "-m", "pip", "install",
             "opencv-python", "pillow", "numpy"
         ])
         
-        print("✅ MiDaS installation completed successfully!")
-        print("🎯 You can now run depth estimation tests")
+        print("MiDaS installation completed successfully!")
+        print("You can now run depth estimation tests")
         
     except subprocess.CalledProcessError as e:
-        print(f"❌ Installation failed: {e}")
+        print(f"x Installation failed: {e}")
         return False
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"x Unexpected error: {e}")
         return False
     
     return True
@@ -60,8 +60,8 @@ def install_midas():
 if __name__ == "__main__":
     success = install_midas()
     if success:
-        print("\n🎉 Installation complete! Next steps:")
+        print("\nInstallation complete! Next steps:")
         print("1. Run: python test_depth_estimation.py")
         print("2. Start server: python run.py")
     else:
-        print("\n💥 Installation failed. Please check the error messages above.")
+        print("\nInstallation failed. Please check the error messages above.")
