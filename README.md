@@ -21,14 +21,11 @@ Nuu transforms any room into an interactive 3D model that you can pull up on you
 We started with a flowchart diagram on a whiteboard then divided responsibilities: one teammate focused on creating an intuitive Three.js viewer with smooth navigation controls, while the other built the computer vision pipeline from video input to 3D mesh output. We leveraged AI assistance throughout to accelerate learning new frameworks and to debug complex issues. 
 
 ## Challenges we ran into
-**For the frontend**, the steepest learning curve was Three.js, neither of us had touched 3D graphics before this hackathon. Loading and rending .glb files seemed simple in tutorials but we hit a lit of issues related to camera positioning and coordinate system mismatches. After a few hours of debugging and reading documentation, we finally got our first mesh to appear on screen.
+**For the frontend**, the steepest learning curve was Three.js, as neither of us had touched 3D graphics before this hackathon. Loading and rending .glb files seemed simple in tutorials but we hit a lot of issues related to camera positioning and coordinate system mismatches. After a few hours of debugging and reading documentation, we finally got our first mesh to appear on screen.
 
 **For the backend**, the 3D reconstruction part was the hardest. While we successfully got depth estimation working on the first or second try, and camera post estimation running, translating these to a clean mesh was brutal. Our early attempts produced...well, let's call them "abstract art". They looked more like crystal fragments than rooms. 
 
 The core issue is that COLMAP is actually incredibly sensitive to camera parameters, lighting conditions, and video quality. Phone videos with motion blur or low texture would fail to reconstruct. When it did work, the point cloud was often noisy, requiring extensive filtering. Converting noisy point clouds to clean meshes using Poisson reconstruction also felt like an impossible task while we were bouncing between tuning the parameters and learning how the math works behind it.
-
-## Accomplishments that we're proud of
-This section will be written when we get the two challenges working.
 
 ## What we learned
 On the technical side, we disovered that Three.js is powerful but also unforgiving. 3D graphics programming requires thinking in completely different terms about coordinate systems, matrices, shaders, and camera projections, where small mistakes will cascade into insane visual bugs. We also learned that CV is genuinely difficult; even with a bunch of pre-trained models, making them work together reliably is challenging, and real-world data like shaky phone videos and varied lighting breaks algorithms in unexpected ways. 
