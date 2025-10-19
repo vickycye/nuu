@@ -68,16 +68,32 @@ async def test_video_processing():
         logger.info(f"Extracted {frame_data['total_frames_extracted']} frames")
         logger.info(f"Video info: {frame_data['video_info']}")
         
-        # List extracted frames
+        # List extracted frames - check multiple patterns
         frames_dir = settings.FRAMES_DIR
-        extracted_frames = list(frames_dir.glob(f"{job_id}_frame_*.jpg"))
-        logger.info(f"Frame files created: {len(extracted_frames)}")
+        extracted_frames = []
+        patterns = [
+            f"{job_id}_frame_*.jpg",
+            f"{job_id}_frame_*.png",
+            "output_frame_*.jpg",
+            "output_frame_*.png",
+            "*_frame_*.jpg",
+            "*_frame_*.png"
+        ]
         
-        for frame_file in extracted_frames[:5]:  # Show first 5 frames
-            logger.info(f"  - {frame_file.name}")
+        for pattern in patterns:
+            extracted_frames = list(frames_dir.glob(pattern))
+            if extracted_frames:
+                logger.info(f"Frame files created using pattern '{pattern}': {len(extracted_frames)}")
+                break
         
-        if len(extracted_frames) > 5:
-            logger.info(f"  ... and {len(extracted_frames) - 5} more frames")
+        if extracted_frames:
+            for frame_file in extracted_frames[:5]:  # Show first 5 frames
+                logger.info(f"  - {frame_file.name}")
+            
+            if len(extracted_frames) > 5:
+                logger.info(f"  ... and {len(extracted_frames) - 5} more frames")
+        else:
+            logger.warning("No frame files found in frames directory")
         
         logger.info("✅ Video processing test completed successfully!")
         

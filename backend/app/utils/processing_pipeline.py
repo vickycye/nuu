@@ -7,6 +7,7 @@ from app.core.database import JobDatabase
 from app.models.job import JobStatus, JobUpdate
 from app.utils.video_processor import VideoProcessor
 from app.utils.depth_estimator import DepthEstimator
+from app.utils.reconstruction import Reconstruction3D
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class ProcessingPipeline:
         self.job_db = JobDatabase()
         self.video_processor = VideoProcessor(settings.FRAMES_DIR)
         self.depth_estimator = DepthEstimator(settings.DEPTH_MAPS_DIR)
+        self.reconstruction_3d = Reconstruction3D(settings.MODELS_DIR)
     
     async def process_video(self, job_id: str, video_path: str):
         """
@@ -55,11 +57,15 @@ class ProcessingPipeline:
             
             logger.info(f"Depth estimation completed: {len(depth_results)} depth maps generated")
             
-            # Step 4: 3D reconstruction (placeholder for now)
+            # Step 4: 3D reconstruction
             await self._update_job_status(job_id, JobStatus.RECONSTRUCTING_3D, 80, "Generating 3D model...")
             
-            # TODO: Implement 3D reconstruction
-            await asyncio.sleep(3)  # Simulate processing time
+            # Run 3D reconstruction
+            reconstruction_result = self.reconstruction_3d.reconstruct_3d_model(
+                job_id, frame_data['frames'], depth_results
+            )
+            
+            logger.info(f"3D reconstruction completed: {reconstruction_result['point_cloud_size']} points, {reconstruction_result['mesh_faces']} faces")
             
             # Step 5: Complete
             await self._update_job_status(
@@ -71,6 +77,8 @@ class ProcessingPipeline:
                     'frames_extracted': frame_data['total_frames_extracted'],
                     'depth_maps_generated': len(depth_results),
                     'depth_statistics': depth_stats,
+                    'reconstruction_result': reconstruction_result,
+                    'model_paths': reconstruction_result['model_paths'],
                     'video_info': frame_data['video_info']
                 }
             )

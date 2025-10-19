@@ -32,3 +32,4 @@ curl -X POST http://localhost:8000/api/upload-sample/room_tour.mp4
 3. Ensure good lighting
 4. Save the video in this directory
 5. Use the upload-sample endpoint to test
+

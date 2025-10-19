@@ -11,7 +11,7 @@ class Settings:
     MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB so our backend doesn't explode
     
     # video processing settings
-    FRAME_EXTRACTION_INTERVAL = 0.5  # seconds, this can be tweaked later
+    FRAME_EXTRACTION_INTERVAL = 0.1  # seconds, this can be tweaked later
     SUPPORTED_VIDEO_FORMATS = ['.mp4', '.avi', '.mov', '.mkv', '.MP4', '.AVI', '.MOV', '.MKV']
     
     # processing directories

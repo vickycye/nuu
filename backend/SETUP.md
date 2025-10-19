@@ -25,6 +25,9 @@
    
    # Test depth estimation
    python test_depth_estimation.py
+   
+   # Test 3D reconstruction
+   python test_3d_reconstruction.py
    ```
 
 5. **Run the backend:**
@@ -59,7 +62,9 @@
 - `POST /api/upload` - Upload video file
 - `POST /api/upload-sample/{filename}` - Process sample video
 - `GET /api/status/{job_id}` - Check processing status
-- `GET /api/model/{job_id}` - Download completed 3D model
+- `GET /api/model/{job_id}` - Download 3D model (.glb, .obj, .ply)
+- `GET /api/model/{job_id}/info` - Get model information
+- `GET /api/model/{job_id}/poses` - Download camera poses
 - `GET /api/samples` - List available sample videos
 
 ## Directory Structure
@@ -90,4 +95,4 @@ backend/
 3. Run `python test_depth_estimation.py` to test depth estimation
 4. Start the server with `python run.py`
 5. Test the API endpoints
-6. Ready for 3D reconstruction implementation!
+6. Ready for frontend integration!
