@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import upload, status, download
+from app.routers import upload, status
 from app.core.config import settings 
 
 app = FastAPI(title="Nuu", version="0.1.0")
@@ -17,7 +17,6 @@ app.add_middleware(
 # include routers
 app.include_router(upload.router, prefix="/api", tags=['upload'])
 app.include_router(status.router, prefix="/api", tags=['status'])
-app.include_router(download.router, prefix="/api", tags=['download'])
 
 @app.get("/")
 async def root():

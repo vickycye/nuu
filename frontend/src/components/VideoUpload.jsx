@@ -1,31 +1,16 @@
 import React from 'react'
 import { useState, useRef } from 'react'
+import { getApiUrl } from '../config/api'
 import './VideoUpload.css'
 
 export default function VideoUpload({ 
   onUploadStart, 
-  onProcessingStart, 
+  onJobCreated, 
   onComplete, 
   onError 
 }) {
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef(null)
-
-  const handleDemoMode = () => {
-    onUploadStart()
-    
-    // Simulate processing delay
-    setTimeout(() => {
-      onProcessingStart()
-      
-      // Simulate processing completion
-      setTimeout(() => {
-        // Use a simple geometric model (no external loading needed)
-        const demoModelUrl = 'demo-cube'
-        onComplete(demoModelUrl)
-      }, 2000)
-    }, 1000)
-  }
 
   const handleFileSelect = async (file) => {
     // Check if it's a video file
@@ -53,44 +38,38 @@ export default function VideoUpload({
 
     try {
       const formData = new FormData()
-      formData.append('video', file)
+      formData.append('file', file)
 
-      // Upload video
-      const uploadResponse = await fetch('/api/upload', {
+      console.log('Uploading video to backend...')
+      
+      // Upload video to backend
+      const uploadResponse = await fetch(getApiUrl('/api/upload'), {
         method: 'POST',
         body: formData,
       })
 
+      console.log(uploadResponse)
+
       if (!uploadResponse.ok) {
-        throw new Error('Upload failed')
+        throw new Error(`Upload failed: ${uploadResponse.status}`)
       }
 
       const uploadResult = await uploadResponse.json()
-      onProcessingStart()
-
-      // Poll for processing completion
-      const pollForCompletion = async () => {
-        try {
-          const statusResponse = await fetch(`/api/status/${uploadResult.jobId}`)
-          const status = await statusResponse.json()
-
-          if (status.status === 'complete') {
-            onComplete(status.modelUrl)
-          } else if (status.status === 'error') {
-            onError(status.error || 'Processing failed')
-          } else {
-            // Still processing, poll again in 2 seconds
-            setTimeout(pollForCompletion, 2000)
-          }
-        } catch (error) {
-          onError('Failed to check processing status')
-        }
+      console.log('Upload response:', uploadResult)
+      
+      if (uploadResult.job_id) {
+        onJobCreated(uploadResult.job_id)
+      } else {
+        throw new Error('No job ID returned from backend')
       }
 
-      pollForCompletion()
-
     } catch (error) {
-      onError('Failed to upload video. Please try again.')
+      console.error('Upload error:', error)
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        onError('Backend server is not running. Please start the backend server first.')
+      } else {
+        onError(`Failed to upload video: ${error.message}`)
+      }
     }
   }
 
@@ -136,11 +115,12 @@ export default function VideoUpload({
           onClick={handleClick}
         >
           <div className="upload-content">
-            <div className="upload-icon">📹</div>
-            <h3>Upload Room Video or 3D Model</h3>
-            <p>Drag and drop your file here, or click to browse</p>
+            <div className="upload-icon"><img src={"/nuu_transparent.png"} alt={"nuu"} height={120}/></div> 
+            <p className="upload-text">Drag and drop or click to browse</p>
             <p className="upload-hint">
-              Video: MP4, MOV, AVI • 3D Models: GLB, GLTF, OBJ
+              File size limit: 100MB
+              <br/>
+              File types accepted: .mp4, .mov, .avi, .glb, .gltf, .obj
             </p>
           </div>
         </div>
