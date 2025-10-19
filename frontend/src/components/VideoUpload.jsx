@@ -38,7 +38,7 @@ export default function VideoUpload({
 
     try {
       const formData = new FormData()
-      formData.append('video', file)
+      formData.append('file', file)  // Backend expects 'file', not 'video'
 
       console.log('Uploading video to backend...')
       
