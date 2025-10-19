@@ -7,8 +7,21 @@ logger = logging.getLogger(__name__)
 
 # handles job operations
 class JobDatabase:
+    _instance = None
+    _jobs: Dict[str, JobInfo] = {}
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(JobDatabase, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self):
-        self.jobs: Dict[str, JobInfo] = {}
+        # Use class variable instead of instance variable
+        pass
+    
+    @property
+    def jobs(self):
+        return JobDatabase._jobs
     
     def create_job(self, job_info: JobInfo):
         self.jobs[job_info.job_id] = job_info
