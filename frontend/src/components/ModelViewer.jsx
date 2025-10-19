@@ -165,16 +165,7 @@ function Model({ url }) {
         }
     }, [model, isSetup])
 
-    return (
-        <group>
-            <primitive object={model.scene} />
-            {/* Add a simple test cube at origin */}
-            <mesh position={[0, 0, 0]}>
-                <boxGeometry args={[1, 1, 1]} />
-                <meshBasicMaterial color="red" />
-            </mesh>
-        </group>
-    )
+    return <primitive object={model.scene} />
 }
 
 // Fallback for OBJ files
@@ -217,16 +208,10 @@ export default function ModelViewer({ modelUrl, onReset }) {
                             <DemoModel />
                         ) : isGLTF ? (
                             <Model key={modelUrl} url={modelUrl} />
-                        ) : (
-                            <OBJModel key={modelUrl} url={modelUrl} />
-                        )}
-
-                        {/* Test cube to verify 3D scene is working */}
-                        <mesh position={[0, 1, 0]}>
-                            <boxGeometry args={[0.5, 0.5, 0.5]} />
-                            <meshStandardMaterial color="blue" />
-                        </mesh>
-                    </Suspense>
+                            ) : (
+                                <OBJModel key={modelUrl} url={modelUrl} />
+                            )}
+                        </Suspense>
 
                     {showGrid && <Grid args={[20, 20]} />}
 
