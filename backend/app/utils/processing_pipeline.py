@@ -46,13 +46,13 @@ class ProcessingPipeline:
             # Step 3: Depth estimation
             await self._update_job_status(job_id, JobStatus.ESTIMATING_DEPTH, 50, "Estimating depth maps...")
             
-            # Extract frame paths for depth estimation
+            # extract frame paths for depth estimation
             frame_paths = [frame['file_path'] for frame in frame_data['frames']]
             
-            # Run depth estimation on all frames
+            # run depth estimation on all frames
             depth_results = self.depth_estimator.estimate_depth_batch(frame_paths, job_id)
             
-            # Get depth statistics
+            # get depth statistics
             depth_stats = self.depth_estimator.get_depth_statistics(job_id)
             
             logger.info(f"Depth estimation completed: {len(depth_results)} depth maps generated")
@@ -60,7 +60,7 @@ class ProcessingPipeline:
             # Step 4: 3D reconstruction
             await self._update_job_status(job_id, JobStatus.RECONSTRUCTING_3D, 80, "Generating 3D model...")
             
-            # Run 3D reconstruction
+            # run 3D reconstruction
             reconstruction_result = self.reconstruction_3d.reconstruct_3d_model(
                 job_id, frame_data['frames'], depth_results
             )

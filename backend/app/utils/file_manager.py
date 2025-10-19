@@ -8,6 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# manages teh file system operations for the application
 class FileManager:
     def __init__(self):
         self.setup_directories()
