@@ -1,5 +1,5 @@
 import React from 'react'
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { OrbitControls, Grid, Environment } from '@react-three/drei'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
@@ -108,63 +108,77 @@ function FirstPersonControls() {
 // Model loader component
 function Model({ url }) {
   const model = useLoader(GLTFLoader, url)
+  const [isSetup, setIsSetup] = useState(false)
   
-  // Debug logging
-  console.log('GLB Model loaded:', model)
-  console.log('Model scene:', model.scene)
-  console.log('Model scene children:', model.scene.children)
+  // Reset setup state when URL changes
+  useEffect(() => {
+    setIsSetup(false)
+  }, [url])
   
-  // Calculate bounding box to center and scale the model
-  const box = new THREE.Box3().setFromObject(model.scene)
-  const center = box.getCenter(new THREE.Vector3())
-  const size = box.getSize(new THREE.Vector3())
-  
-  console.log('Model bounding box:', { center, size })
-  console.log('Model position before:', model.scene.position)
-  console.log('Model scale before:', model.scene.scale)
-  
-  // Reset position and scale first
-  model.scene.position.set(0, 0, 0)
-  model.scene.scale.set(1, 1, 1)
-  
-  // Center the model
-  model.scene.position.sub(center)
-  
-  // Scale the model to be much smaller and more manageable
-  const maxDimension = Math.max(size.x, size.y, size.z)
-  if (maxDimension > 0) {
-    const scale = 2 / maxDimension  // Much smaller scale - target 2 units max
-    model.scene.scale.setScalar(scale)
-    console.log('Model scaled by:', scale)
-    console.log('Original size:', size)
-    console.log('Scaled size:', { 
-      x: size.x * scale, 
-      y: size.y * scale, 
-      z: size.z * scale 
-    })
-  }
-  
-  // Position the model at a better location for viewing
-  model.scene.position.set(0, 0, 0)  // Reset to origin
-  
-  console.log('Model position after:', model.scene.position)
-  console.log('Model scale after:', model.scene.scale)
-  
-  // Check if model has materials and make them more visible
-  model.scene.traverse((child) => {
-    if (child.isMesh) {
-      console.log('Found mesh:', child.name, 'Material:', child.material)
-      if (child.material) {
-        console.log('Material type:', child.material.type)
-        console.log('Material color:', child.material.color)
-        
-        // Make the material more visible
-        child.material.color.setHex(0x00ff00) // Bright green
-        child.material.needsUpdate = true
-        console.log('Changed material color to green')
+  useEffect(() => {
+    if (model && model.scene && !isSetup) {
+      console.log('Setting up model after load...')
+      
+      // Debug logging
+      console.log('GLB Model loaded:', model)
+      console.log('Model scene:', model.scene)
+      console.log('Model scene children:', model.scene.children)
+      
+      // Calculate bounding box to center and scale the model
+      const box = new THREE.Box3().setFromObject(model.scene)
+      const center = box.getCenter(new THREE.Vector3())
+      const size = box.getSize(new THREE.Vector3())
+      
+      console.log('Model bounding box:', { center, size })
+      console.log('Model position before:', model.scene.position)
+      console.log('Model scale before:', model.scene.scale)
+      
+      // Reset position and scale first
+      model.scene.position.set(0, 0, 0)
+      model.scene.scale.set(1, 1, 1)
+      
+      // Center the model
+      model.scene.position.sub(center)
+      
+      // Scale the model to be much smaller and more manageable
+      const maxDimension = Math.max(size.x, size.y, size.z)
+      if (maxDimension > 0) {
+        const scale = 2 / maxDimension  // Much smaller scale - target 2 units max
+        model.scene.scale.setScalar(scale)
+        console.log('Model scaled by:', scale)
+        console.log('Original size:', size)
+        console.log('Scaled size:', { 
+          x: size.x * scale, 
+          y: size.y * scale, 
+          z: size.z * scale 
+        })
       }
+      
+      // Position the model at a better location for viewing
+      model.scene.position.set(0, 0, 0)  // Reset to origin
+      
+      console.log('Model position after:', model.scene.position)
+      console.log('Model scale after:', model.scene.scale)
+      
+      // Check if model has materials and make them more visible
+      model.scene.traverse((child) => {
+        if (child.isMesh) {
+          console.log('Found mesh:', child.name, 'Material:', child.material)
+          if (child.material) {
+            console.log('Material type:', child.material.type)
+            console.log('Material color:', child.material.color)
+            
+            // Make the material more visible
+            child.material.color.setHex(0x00ff00) // Bright green
+            child.material.needsUpdate = true
+            console.log('Changed material color to green')
+          }
+        }
+      })
+      
+      setIsSetup(true)
     }
-  })
+  }, [model, isSetup])
   
   return (
     <group>
@@ -173,11 +187,6 @@ function Model({ url }) {
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[1, 1, 1]} />
         <meshBasicMaterial color="red" />
-      </mesh>
-      {/* Add a wireframe box around the model for debugging */}
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[size.x, size.y, size.z]} />
-        <meshBasicMaterial color="yellow" wireframe />
       </mesh>
     </group>
   )
@@ -287,9 +296,9 @@ export default function ModelViewer({ modelUrl, onReset }) {
             {isDemo ? (
               <DemoModel />
             ) : isGLTF ? (
-              <Model url={modelUrl} />
+              <Model key={modelUrl} url={modelUrl} />
             ) : (
-              <OBJModel url={modelUrl} />
+              <OBJModel key={modelUrl} url={modelUrl} />
             )}
             
             {/* Test cube to verify 3D scene is working */}

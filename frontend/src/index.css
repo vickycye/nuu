@@ -11,6 +11,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #F4F1ED;
   min-height: 100vh;
+  color: black;
 }
 
 #root {
@@ -85,8 +86,8 @@ body {
   display: flex;
   flex-direction: column;
   text-align: start;
-  padding-bottom: 50px;
   gap: 5px;
+  padding: 20px;
 }
 
 .instruction div {

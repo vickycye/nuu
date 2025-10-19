@@ -3,6 +3,7 @@ from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 # uploadfile supports large files because it doesn't load the whole file into memory at once
 # file is used to declare a file input parameter in an API endpoint
 # BackgroundTasks is used to run tasks int eh background after sending a response to the client
+from pydantic import BaseModel
 from app.models.job import JobInfo, JobStatus
 from app.utils.file_manager import FileManager
 from app.core.database import JobDatabase
@@ -18,6 +19,12 @@ router = APIRouter()
 file_manager = FileManager()
 job_db = JobDatabase()
 processing_pipeline = ProcessingPipeline()
+
+# Response model for upload endpoint
+class UploadResponse(BaseModel):
+    job_id: str
+    status: str
+    message: str
 
 @router.post("/upload", response_model=UploadResponse)
 async def upload_video(

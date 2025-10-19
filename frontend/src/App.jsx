@@ -2,16 +2,85 @@ import React from 'react'
 import { useState } from 'react'
 import VideoUpload from './components/VideoUpload'
 import ModelViewer from './components/ModelViewer'
+import { getApiUrl } from './config/api'
 import './App.css'
 
 function App() {
   const [status, setStatus] = useState('idle') // 'idle' | 'uploading' | 'processing' | 'complete' | 'error'
   const [modelUrl, setModelUrl] = useState(null)
   const [error, setError] = useState(null)
+  const [jobId, setJobId] = useState(null) // Added jobId state
+  const [processingMessage, setProcessingMessage] = useState('') // Added processingMessage state
+
+  // Backend to frontend status mapping:
+  // 'uploaded' -> 'complete' (upload successful)
+  // 'extracting_frames' | 'estimating_depth' | 'reconstructing_3d' -> 'processing'
+  // 'completed' -> 'complete' (processing done)
+  // 'failed' -> 'error'
+
+  // Poll backend for job status
+  const pollJobStatus = async (jobId) => {
+    try {
+      const response = await fetch(getApiUrl(`/api/status/${jobId}`))
+      const data = await response.json()
+      
+      console.log('Job status:', data.status)
+      
+      switch (data.status) {
+        case 'uploaded':
+          setStatus('complete')
+          setProcessingMessage('Video uploaded successfully!')
+          break
+          
+        case 'extracting_frames':
+          setStatus('processing')
+          setProcessingMessage('Extracting frames from video...')
+          break
+          
+        case 'estimating_depth':
+          setStatus('processing')
+          setProcessingMessage('Estimating depth information...')
+          break
+          
+        case 'reconstructing_3d':
+          setStatus('processing')
+          setProcessingMessage('Reconstructing 3D model...')
+          break
+          
+        case 'completed':
+          setStatus('complete')
+          setModelUrl(data.modelUrl)
+          setProcessingMessage('3D model ready!')
+          break
+          
+        case 'failed':
+          setStatus('error')
+          setError(data.error || 'Processing failed')
+          break
+          
+        default:
+          // Still processing, poll again in 2 seconds
+          setTimeout(() => pollJobStatus(jobId), 2000)
+      }
+    } catch (error) {
+      console.error('Error polling job status:', error)
+      setStatus('error')
+      setError('Failed to check processing status')
+    }
+  }
 
   const handleUploadComplete = (url) => {
+    // For direct 3D model uploads (GLB/OBJ files)
     setModelUrl(url)
     setStatus('complete')
+  }
+
+  const handleJobCreated = (jobId) => {
+    setJobId(jobId)
+    setStatus('processing')
+    setProcessingMessage('Starting processing...')
+    // Start polling for status updates
+    pollJobStatus(jobId)
   }
 
   const handleError = (errorMessage) => {
@@ -23,13 +92,15 @@ function App() {
     setStatus('idle')
     setModelUrl(null)
     setError(null)
+    setJobId(null) // Reset jobId
+    setProcessingMessage('') // Reset processingMessage
   }
 
   return (
     <div className="app">
       <header className="app-header">
-          <h1>nuu</h1>
-          <h2>Scan it, plan it, buy it.</h2>
+        <h1>nuu</h1>
+        <h2>scan it, plan it, buy it.</h2>
       </header>
 
       <main className="app-main">
@@ -38,7 +109,7 @@ function App() {
             <div className="body">
               <VideoUpload
                 onUploadStart={() => setStatus('uploading')}
-                onProcessingStart={() => setStatus('processing')}
+                onJobCreated={handleJobCreated}
                 onComplete={handleUploadComplete}
                 onError={handleError}
               />
@@ -86,8 +157,8 @@ function App() {
         {status === 'processing' && (
           <div className="status-container">
             <div className="loading-spinner"></div>
-            <p>Processing frames...</p>
-            <p className="status-sub">Generating 3D model...</p>
+            <p>{processingMessage}</p>
+            {jobId && <p className="status-sub">Job ID: {jobId}</p>}
           </div>
         )}
 
