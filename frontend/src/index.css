@@ -5,12 +5,11 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans', Arial, Helvetica, sans-serif,
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #F4F1ED;
   min-height: 100vh;
 }
 
@@ -25,15 +24,22 @@ body {
 }
 
 .app-header {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 20px;
   padding: 2rem;
-  color: white;
+  color: black;
 }
 
 .app-header h1 {
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 3rem;
-  margin-bottom: 0.5rem;
-  font-weight: 300;
+  font-weight: 700;
+}
+
+.app-header h2 {
+  font-size: 1.5rem;
 }
 
 .app-header p {
@@ -44,14 +50,55 @@ body {
 .app-main {
   flex: 1;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  margin-left: 3rem;
+  margin-right: 3rem;
+}
+
+.body {
+  color: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-instructions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+}
+
+.instruction {
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  padding-bottom: 50px;
+  gap: 5px;
+}
+
+.instruction div {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.instruction p {
+  text-align: start;
+}
+
+.instruction-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .status-container {
   text-align: center;
-  color: white;
+  color: black;
   background: rgba(255, 255, 255, 0.1);
   padding: 3rem;
   border-radius: 1rem;
@@ -70,7 +117,7 @@ body {
 
 .error-container {
   text-align: center;
-  color: white;
+  color: black;
   background: rgba(255, 255, 255, 0.1);
   padding: 3rem;
   border-radius: 1rem;
@@ -91,7 +138,7 @@ body {
 .reset-button {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  color: black;
   padding: 0.8rem 2rem;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -108,7 +155,7 @@ body {
   width: 50px;
   height: 50px;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid white;
+  border-top: 4px solid black;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;

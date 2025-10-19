@@ -1,3 +1,4 @@
+import React from 'react'
 import { Suspense, useRef, useState } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import { OrbitControls, Grid, Environment } from '@react-three/drei'
@@ -107,7 +108,60 @@ function FirstPersonControls() {
 // Model loader component
 function Model({ url }) {
   const model = useLoader(GLTFLoader, url)
-  return <primitive object={model.scene} />
+  
+  // Debug logging
+  console.log('GLB Model loaded:', model)
+  console.log('Model scene:', model.scene)
+  console.log('Model scene children:', model.scene.children)
+  
+  // Calculate bounding box to center and scale the model
+  const box = new THREE.Box3().setFromObject(model.scene)
+  const center = box.getCenter(new THREE.Vector3())
+  const size = box.getSize(new THREE.Vector3())
+  
+  console.log('Model bounding box:', { center, size })
+  console.log('Model position before:', model.scene.position)
+  console.log('Model scale before:', model.scene.scale)
+  
+  // Reset position and scale first
+  model.scene.position.set(0, 0, 0)
+  model.scene.scale.set(1, 1, 1)
+  
+  // Center the model
+  model.scene.position.sub(center)
+  
+  // Scale the model to fit in a reasonable size (max dimension = 3 units)
+  const maxDimension = Math.max(size.x, size.y, size.z)
+  if (maxDimension > 0) {
+    const scale = 3 / maxDimension
+    model.scene.scale.setScalar(scale)
+    console.log('Model scaled by:', scale)
+  }
+  
+  console.log('Model position after:', model.scene.position)
+  console.log('Model scale after:', model.scene.scale)
+  
+  // Check if model has materials
+  model.scene.traverse((child) => {
+    if (child.isMesh) {
+      console.log('Found mesh:', child.name, 'Material:', child.material)
+      if (child.material) {
+        console.log('Material type:', child.material.type)
+        console.log('Material color:', child.material.color)
+      }
+    }
+  })
+  
+  return (
+    <group>
+      <primitive object={model.scene} />
+      {/* Add a wireframe box around the model for debugging */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[size.x, size.y, size.z]} />
+        <meshBasicMaterial color="yellow" wireframe />
+      </mesh>
+    </group>
+  )
 }
 
 // Fallback for OBJ files
@@ -120,7 +174,11 @@ export default function ModelViewer({ modelUrl, onReset }) {
   const [controlsMode, setControlsMode] = useState('orbit') // 'orbit' | 'firstperson'
   const [showGrid, setShowGrid] = useState(true)
 
-  const isGLTF = modelUrl.toLowerCase().includes('.glb') || modelUrl.toLowerCase().includes('.gltf')
+  const isDemo = modelUrl === 'demo-cube'
+  // Better file type detection - check for blob URLs and file extensions
+  const isGLTF = modelUrl.toLowerCase().includes('.glb') || 
+                 modelUrl.toLowerCase().includes('.gltf') ||
+                 modelUrl.startsWith('blob:') // Blob URLs from file uploads
 
   return (
     <div className="model-viewer">
@@ -156,11 +214,19 @@ export default function ModelViewer({ modelUrl, onReset }) {
       <div className="canvas-container">
         <Canvas camera={{ position: [5, 5, 5], fov: 75 }}>
           <Suspense fallback={null}>
-            {isGLTF ? (
+            {isDemo ? (
+              <DemoModel />
+            ) : isGLTF ? (
               <Model url={modelUrl} />
             ) : (
               <OBJModel url={modelUrl} />
             )}
+            
+            {/* Test cube to verify 3D scene is working */}
+            <mesh position={[0, 1, 0]}>
+              <boxGeometry args={[0.5, 0.5, 0.5]} />
+              <meshStandardMaterial color="blue" />
+            </mesh>
           </Suspense>
           
           {showGrid && <Grid args={[20, 20]} />}

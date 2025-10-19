@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useRef } from 'react'
 import './VideoUpload.css'
 
@@ -10,14 +11,41 @@ export default function VideoUpload({
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef(null)
 
+  const handleDemoMode = () => {
+    onUploadStart()
+    
+    // Simulate processing delay
+    setTimeout(() => {
+      onProcessingStart()
+      
+      // Simulate processing completion
+      setTimeout(() => {
+        // Use a simple geometric model (no external loading needed)
+        const demoModelUrl = 'demo-cube'
+        onComplete(demoModelUrl)
+      }, 2000)
+    }, 1000)
+  }
+
   const handleFileSelect = async (file) => {
-    if (!file.type.startsWith('video/')) {
-      onError('Please select a video file')
+    // Check if it's a video file
+    if (file.type.startsWith('video/')) {
+      if (file.size > 100 * 1024 * 1024) { // 100MB limit
+        onError('Video file is too large. Please select a file under 100MB.')
+        return
+      }
+    } 
+    // Check if it's a 3D model file
+    else if (file.name.toLowerCase().endsWith('.glb') || file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.obj')) {
+      // Handle 3D model file directly
+      const modelUrl = URL.createObjectURL(file)
+      console.log('3D Model file detected:', file.name, 'Type:', file.type)
+      console.log('Generated URL:', modelUrl)
+      onComplete(modelUrl)
       return
     }
-
-    if (file.size > 100 * 1024 * 1024) { // 100MB limit
-      onError('Video file is too large. Please select a file under 100MB.')
+    else {
+      onError('Please select a video file or 3D model (.glb, .gltf, .obj)')
       return
     }
 
@@ -99,39 +127,31 @@ export default function VideoUpload({
 
   return (
     <div className="video-upload">
-      <div
-        className={`upload-area ${isDragOver ? 'drag-over' : ''}`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onClick={handleClick}
-      >
-        <div className="upload-content">
-          <div className="upload-icon">📹</div>
-          <h3>Upload Room Video</h3>
-          <p>Drag and drop your video here, or click to browse</p>
-          <p className="upload-hint">
-            Supported formats: MP4, MOV, AVI • Max size: 100MB
-          </p>
+      <div className="upload-container">
+        <div
+          className={`upload-area ${isDragOver ? 'drag-over' : ''}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={handleClick}
+        >
+          <div className="upload-content">
+            <div className="upload-icon">📹</div>
+            <h3>Upload Room Video or 3D Model</h3>
+            <p>Drag and drop your file here, or click to browse</p>
+            <p className="upload-hint">
+              Video: MP4, MOV, AVI • 3D Models: GLB, GLTF, OBJ
+            </p>
+          </div>
         </div>
-      </div>
-      
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="video/*"
-        onChange={handleFileInputChange}
-        style={{ display: 'none' }}
-      />
-      
-      <div className="upload-tips">
-        <h4>📱 Tips for best results:</h4>
-        <ul>
-          <li>Walk slowly around the room</li>
-          <li>Keep the camera steady</li>
-          <li>Make sure good lighting</li>
-          <li>Include walls, floor, and furniture</li>
-        </ul>
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="video/*,.glb,.gltf,.obj"
+          onChange={handleFileInputChange}
+          style={{ display: 'none' }}
+        />
       </div>
     </div>
   )
