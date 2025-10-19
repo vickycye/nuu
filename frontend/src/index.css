@@ -9,13 +9,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #F4F1ED;
+  background: #252629;
   min-height: 100vh;
   color: black;
-}
-
-#root {
-  min-height: 100vh;
 }
 
 .app {
@@ -24,13 +20,19 @@ body {
   flex-direction: column;
 }
 
+.header {
+  width: 100%;
+  background-color: #252629;
+  /* border-radius: 0 0 10px 10px; */
+}
+
 .app-header {
   display: flex;
   flex-direction: column;
   align-items: start;
   gap: 20px;
-  padding: 2rem;
-  color: black;
+  padding: 2rem 4rem;
+  color: white;
 }
 
 .app-header h1 {
@@ -54,9 +56,9 @@ body {
   flex-direction: row;
   align-items: start;
   justify-content: center;
-  margin-top: 100px;
-  margin-left: 3rem;
-  margin-right: 3rem;
+  padding: 2rem;
+  background-color: #F4F1ED;
+  border-radius: 10px 10px 0 0;
 }
 
 .big-body {
@@ -65,6 +67,8 @@ body {
   justify-content: center;
   align-items: center;
   gap: 100px;
+  padding: 0 2rem;
+  padding-top: 2rem;
 }
 
 .body {
@@ -72,7 +76,6 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
 }
 
 .app-instructions {
@@ -80,6 +83,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: start;
+  border-radius: 10px;
 }
 
 .instruction {
@@ -98,10 +102,12 @@ body {
 
 .instruction p {
   text-align: start;
+  color: #252629;
 }
 
 .instruction-title, .about h3 {
   font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
   font-size: 1.1srem;
   margin-bottom: 0.5rem;
 }

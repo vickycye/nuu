@@ -98,9 +98,11 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
+      <header className="header">
+        <div className="app-header">
         <h1>nuu</h1>
         <h2>scan it, plan it, buy it.</h2>
+        </div>
       </header>
 
       <main className="app-main">

@@ -1,104 +1,101 @@
 .video-upload {
-  max-width: 1000px;
-  width: 100%;
-  display: flex;
-  gap: 3rem;
-  align-items: center;
-  justify-content: center;
+    max-width: 1000px;
+    width: 100%;
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    /* justify-content: center; */
 }
 
 .upload-container {
-  flex: 1;
-  max-width: 400px;
+    flex: 1;
+    max-width: 500px;
 }
 
 .upload-area {
-  border: 3px solid gray;
-  border-radius: 1rem;
-  padding: 3rem 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+    border-radius: 10px;
+    border: 1.5px dashed lightgray;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #e8e9ed;
+    backdrop-filter: blur(10px);
 }
 
 .upload-area:hover,
 .upload-area.drag-over {
-  border-color: rgba(0, 0, 0, 0.8);
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+    border-color: rgba(0, 0, 0, 0.8);
+    background: #DEE1E4;
+    transform: translateY(-2px);
 }
 
 .upload-content {
-  color: gray;
+    color: #383939;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .upload-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+    font-size: 4rem;
+    margin-bottom: 1rem;
 }
 
-.upload-content h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  font-weight: 400;
-}
-
-.upload-content p {
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
+.upload-text {
+    font-size: 0.9rem;
 }
 
 .upload-hint {
-  font-size: 0.9rem !important;
-  opacity: 0.7 !important;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-weight: 300;
 }
 
 .instructions-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  text-align: left;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: left;
 }
 
 @media (max-width: 768px) {
-  .video-upload {
-    flex-direction: column;
-    gap: 2rem;
-  }
-  
-  .upload-container {
-    max-width: none;
-  }
-  
-  .upload-area {
-    padding: 2rem 1rem;
-  }
-  
-  .upload-icon {
-    font-size: 3rem;
-  }
-  
-  .upload-content h3 {
-    font-size: 1.3rem;
-  }
-  
-  .upload-tips {
-    padding: 1rem;
-  }
-  
-  .demo-button {
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .instructions-container {
-    text-align: center;
-  }
-  
-  .demo-options {
-    align-items: center;
-  }
+    .video-upload {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .upload-container {
+        max-width: none;
+    }
+
+    .upload-area {
+        padding: 2rem 1rem;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+    }
+
+    .upload-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .upload-tips {
+        padding: 1rem;
+    }
+
+    .demo-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .instructions-container {
+        text-align: center;
+    }
+
+    .demo-options {
+        align-items: center;
+    }
 }

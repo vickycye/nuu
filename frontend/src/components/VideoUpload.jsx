@@ -115,8 +115,8 @@ export default function VideoUpload({
           onClick={handleClick}
         >
           <div className="upload-content">
-            <div className="upload-icon"><img src={"/nuu_transparent.png"} alt={"nuu"} height={100}/></div> 
-            <p>Drag and drop or click to browse</p>
+            <div className="upload-icon"><img src={"/nuu_transparent.png"} alt={"nuu"} height={120}/></div> 
+            <p className="upload-text">Drag and drop or click to browse</p>
             <p className="upload-hint">
               File size limit: 100MB
               <br/>
