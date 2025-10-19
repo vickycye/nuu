@@ -38,7 +38,7 @@ export default function VideoUpload({
 
     try {
       const formData = new FormData()
-      formData.append('file', file)  // Backend expects 'file', not 'video'
+      formData.append('file', file)
 
       console.log('Uploading video to backend...')
       
@@ -57,9 +57,8 @@ export default function VideoUpload({
       const uploadResult = await uploadResponse.json()
       console.log('Upload response:', uploadResult)
       
-      // Backend returns job ID, start polling for status
-      if (uploadResult.jobId) {
-        onJobCreated(uploadResult.jobId)
+      if (uploadResult.job_id) {
+        onJobCreated(uploadResult.job_id)
       } else {
         throw new Error('No job ID returned from backend')
       }
@@ -117,7 +116,7 @@ export default function VideoUpload({
         >
           <div className="upload-content">
             <div className="upload-icon"><img src={"/nuu_transparent.png"} alt={"nuu"} height={100}/></div> 
-            <p>Drag and drop your file here, or click to browse</p>
+            <p>Drag and drop or click to browse</p>
             <p className="upload-hint">
               File size limit: 100MB
               <br/>

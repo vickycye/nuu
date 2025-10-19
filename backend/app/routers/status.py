@@ -14,9 +14,9 @@ async def get_job_status(job_id: str):
     
     return {
         "job_id": job_id,
-        "status": job_info.status,
+        "status": job_info.status.value if hasattr(job_info.status, 'value') else job_info.status,
         "progress": job_info.progress,
         "message": job_info.message,
         "error": job_info.error,
-        "updated_at": job_info.updated_at
+        "updated_at": job_info.updated_at.isoformat() if job_info.updated_at else None
     }
