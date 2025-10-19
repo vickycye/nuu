@@ -9,7 +9,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #252629;
+  background-color: #F4F1ED;
   min-height: 100vh;
   color: black;
 }
@@ -22,7 +22,6 @@ body {
 
 .header {
   width: 100%;
-  background-color: #252629;
   /* border-radius: 0 0 10px 10px; */
 }
 
@@ -32,7 +31,7 @@ body {
   align-items: start;
   gap: 20px;
   padding: 2rem 4rem;
-  color: white;
+  color: black;
 }
 
 .app-header h1 {
