@@ -11,12 +11,14 @@ import os
 
 logger = logging.getLogger(__name__)
 
+# estimates the depth of a single frame using the midas pretrained model
 class DepthEstimator:
     """
     Depth estimation using MiDaS pretrained model
     """
     
-    def __init__(self, depth_maps_dir: Path, model_name: str = "MiDaS_small"):
+    # intiializes the depth estimator with the directory to store the depth maps and the model name
+    def __init__(self, depth_maps_dir: Path, model_name: str = "midas_v21_small_256"):
         self.depth_maps_dir = depth_maps_dir
         self.depth_maps_dir.mkdir(exist_ok=True)
         self.model_name = model_name
@@ -27,42 +29,50 @@ class DepthEstimator:
         logger.info(f"Initializing depth estimator with device: {self.device}")
         self._load_model()
     
+    # loads the midas pretrained model and the preprocessing transform
     def _load_model(self):
         """
         Load MiDaS model and preprocessing transform
         """
         try:
-            # Use a simpler approach with torch.hub
-            logger.info("Loading MiDaS model from torch.hub...")
+            # add local MiDaS to Python path
+            import sys
+            local_midas_path = Path(__file__).parent.parent.parent / "models" / "midas"
+            if local_midas_path.exists():
+                sys.path.insert(0, str(local_midas_path))
+                logger.info(f"Added local MiDaS path: {local_midas_path}")
             
-            # Load MiDaS model from torch hub
-            self.model = torch.hub.load("intel-isl/MiDaS", self.model_name)
-            self.model.to(self.device)
-            self.model.eval()
+            # import MiDaS utilities
+            from midas.model_loader import load_model
+            from midas.transforms import Resize, NormalizeImage, PrepareForNet
             
-            # Set up transforms
-            midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
-            if self.model_name == "MiDaS_small":
-                self.transform = midas_transforms.small_transform
-            else:
-                self.transform = midas_transforms.default_transform
+            # load the model and get the path to the model weights file
+            weights_dir = Path(__file__).parent.parent.parent / "models" / "midas" / "weights"
+            model_path = weights_dir / f"{self.model_name}.pt"
+            
+            if not model_path.exists():
+                raise FileNotFoundError(f"Model weights not found: {model_path}")
+            
+            self.model, self.transform, self.net_w, self.net_h = load_model(
+                self.device, 
+                str(model_path),
+                model_type=self.model_name,
+                optimize=True
+            )
             
             logger.info(f"Loaded MiDaS model: {self.model_name}")
+            logger.info(f"Model input size: {self.net_w}x{self.net_h}")
             
+        except ImportError as e:
+            logger.error(f"MiDaS import failed: {str(e)}")
+            logger.info("Trying to install MiDaS...")
+            self._install_midas()
+            self._load_model()
         except Exception as e:
             logger.error(f"Error loading MiDaS model: {str(e)}")
-            logger.info("Falling back to simple depth estimation...")
-            self._setup_fallback_model()
+            raise
     
-    def _setup_fallback_model(self):
-        """
-        Setup a simple fallback depth estimation model
-        """
-        logger.info("Setting up fallback depth estimation...")
-        self.model = None
-        self.transform = None
-        self.use_fallback = True
-    
+    # installs the midas pretrained model dependencies and the preprocessing transform
     def _install_midas(self):
         """
         Install MiDaS dependencies
@@ -71,25 +81,31 @@ class DepthEstimator:
             import subprocess
             import sys
             
-            # Install MiDaS
+            # install required packages
             subprocess.check_call([
                 sys.executable, "-m", "pip", "install", 
-                "torch", "torchvision", "opencv-python", "pillow"
+                "torch", "torchvision", "opencv-python", "pillow", "timm"
             ])
             
-            # Clone and install MiDaS
-            midas_path = Path("models/midas")
-            midas_path.mkdir(parents=True, exist_ok=True)
-            
-            if not (midas_path / "midas").exists():
-                subprocess.check_call([
-                    "git", "clone", 
-                    "https://github.com/isl-org/MiDaS.git",
-                    str(midas_path / "midas")
-                ])
-            
-            # Add to Python path
-            sys.path.append(str(midas_path))
+            # check if local MiDaS already exists
+            local_midas_path = Path(__file__).parent.parent.parent / "models" / "midas"
+            if local_midas_path.exists():
+                logger.info("Local MiDaS installation found, using existing installation")
+                sys.path.insert(0, str(local_midas_path))
+            else:
+                # Clone and install MiDaS
+                midas_path = Path("models/midas")
+                midas_path.mkdir(parents=True, exist_ok=True)
+                
+                if not (midas_path / "midas").exists():
+                    subprocess.check_call([
+                        "git", "clone", 
+                        "https://github.com/isl-org/MiDaS.git",
+                        str(midas_path / "midas")
+                    ])
+                
+                # add to Python path
+                sys.path.append(str(midas_path))
             
             logger.info("MiDaS installation completed")
             
@@ -97,18 +113,16 @@ class DepthEstimator:
             logger.error(f"Error installing MiDaS: {str(e)}")
             raise
     
+    # estaimtes the depth of a single frame
     def estimate_depth(self, frame_path: str, job_id: str, frame_number: int) -> Dict[str, Any]:
         """
         Estimate depth for a single frame
         """
         try:
-            if hasattr(self, 'use_fallback') and self.use_fallback:
-                return self._estimate_depth_fallback(frame_path, job_id, frame_number)
-            
-            # Load and preprocess image
+            # load and preprocess image
             image = self._load_and_preprocess_image(frame_path)
             
-            # Run depth estimation
+            # run depth estimation
             with torch.no_grad():
                 depth = self.model(image)
                 depth = F.interpolate(
@@ -118,18 +132,18 @@ class DepthEstimator:
                     align_corners=False,
                 ).squeeze()
             
-            # Convert to numpy and normalize
+            # convert to numpy and normalize
             depth_np = depth.cpu().numpy()
             depth_normalized = self._normalize_depth(depth_np)
             
-            # Save depth map
+            # save depth map
             depth_filename = f"{job_id}_depth_{frame_number:04d}.png"
             depth_path = self.depth_maps_dir / depth_filename
             
-            # Save as both PNG (visualization) and NPY (raw data)
-            self._save_depth_map(depth_normalized, depth_path)
+            # save as both PNG (visualization) and NPY (raw data)
+            self._save_depth_map(depth_normalized, depth_path) # png for debugging
             
-            # Also save raw depth data
+            # also save raw depth data
             raw_depth_path = self.depth_maps_dir / f"{job_id}_depth_raw_{frame_number:04d}.npy"
             np.save(raw_depth_path, depth_np)
             
@@ -151,6 +165,7 @@ class DepthEstimator:
             logger.error(f"Error estimating depth for frame {frame_number}: {str(e)}")
             raise
     
+    # estimates the depth of multiple frames in batch
     def estimate_depth_batch(self, frame_paths: List[str], job_id: str) -> List[Dict[str, Any]]:
         """
         Estimate depth for multiple frames in batch
@@ -162,7 +177,7 @@ class DepthEstimator:
                 result = self.estimate_depth(frame_path, job_id, i)
                 results.append(result)
                 
-                # Update progress
+                # update progress
                 progress = int((i + 1) / len(frame_paths) * 100)
                 logger.info(f"Depth estimation progress: {progress}% ({i+1}/{len(frame_paths)})")
                 
@@ -173,78 +188,45 @@ class DepthEstimator:
         logger.info(f"Completed depth estimation for {len(results)} frames")
         return results
     
+    # loads and preprocesses the image for the depth estimation
     def _load_and_preprocess_image(self, image_path: str) -> torch.Tensor:
         """
         Load and preprocess image for MiDaS
         """
-        # Load image
+        # load the image
         image = cv2.imread(image_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
         # Apply transforms
         if self.transform:
-            image = self.transform(image)
+            image = self.transform({"image": image})["image"]
+            # convert to tensor if it's still a numpy array
+            if isinstance(image, np.ndarray):
+                image = torch.from_numpy(image)
+            
+            # ensure 4D tensor (batch_size, channels, height, width)
+            if image.dim() == 3:
+                image = image.unsqueeze(0)  # add batch dimension
         else:
-            # Fallback preprocessing
-            image = cv2.resize(image, (384, 384))  # MiDaS small default size
+            # fallback preprocessing
+            image = cv2.resize(image, (self.net_w, self.net_h))
             image = image.astype(np.float32) / 255.0
             image = torch.from_numpy(image).permute(2, 0, 1).unsqueeze(0)
         
+        # ensure it's a tensor and move to device
+        if isinstance(image, np.ndarray):
+            image = torch.from_numpy(image)
+            if image.dim() == 3:
+                image = image.unsqueeze(0)
+        
         return image.to(self.device)
     
-    def _estimate_depth_fallback(self, frame_path: str, job_id: str, frame_number: int) -> Dict[str, Any]:
-        """
-        Fallback depth estimation using simple computer vision techniques
-        """
-        try:
-            # Load image
-            image = cv2.imread(frame_path)
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            
-            # Simple depth estimation using edge detection and distance transform
-            edges = cv2.Canny(gray, 50, 150)
-            
-            # Distance transform for depth approximation
-            dist_transform = cv2.distanceTransform(edges, cv2.DIST_L2, 5)
-            
-            # Normalize to 0-255 range
-            depth_normalized = cv2.normalize(dist_transform, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-            
-            # Save depth map
-            depth_filename = f"{job_id}_depth_{frame_number:04d}.png"
-            depth_path = self.depth_maps_dir / depth_filename
-            
-            # Save as both PNG (visualization) and NPY (raw data)
-            self._save_depth_map(depth_normalized, depth_path)
-            
-            # Also save raw depth data
-            raw_depth_path = self.depth_maps_dir / f"{job_id}_depth_raw_{frame_number:04d}.npy"
-            np.save(raw_depth_path, dist_transform)
-            
-            logger.info(f"Generated fallback depth map for frame {frame_number}: {depth_filename}")
-            
-            return {
-                'frame_number': frame_number,
-                'depth_map_path': str(depth_path),
-                'raw_depth_path': str(raw_depth_path),
-                'depth_filename': depth_filename,
-                'depth_range': {
-                    'min': float(np.min(dist_transform)),
-                    'max': float(np.max(dist_transform)),
-                    'mean': float(np.mean(dist_transform))
-                },
-                'method': 'fallback'
-            }
-            
-        except Exception as e:
-            logger.error(f"Error in fallback depth estimation: {str(e)}")
-            raise
-    
+    # normalizes depth maps for visualization
     def _normalize_depth(self, depth: np.ndarray) -> np.ndarray:
         """
         Normalize depth map for visualization
         """
-        # Normalize to 0-255 range
+        # normalize to 0-255 range
         depth_min = np.min(depth)
         depth_max = np.max(depth)
         
@@ -255,14 +237,16 @@ class DepthEstimator:
         
         return depth_normalized
     
+    # saves the depth map as an image
     def _save_depth_map(self, depth_map: np.ndarray, output_path: Path):
         """
         Save depth map as image
         """
-        # Apply colormap for better visualization
+        # apply colormap for better visualization
         depth_colored = cv2.applyColorMap(depth_map, cv2.COLORMAP_JET)
         cv2.imwrite(str(output_path), depth_colored)
     
+    # gets the statistics for all depth maps of a job
     def get_depth_statistics(self, job_id: str) -> Dict[str, Any]:
         """
         Get statistics for all depth maps of a job
@@ -296,6 +280,7 @@ class DepthEstimator:
             logger.error(f"Error getting depth statistics: {str(e)}")
             return {"error": str(e)}
     
+    # cleans up the depth maps for a specific job
     def cleanup_depth_maps(self, job_id: str):
         """
         Clean up depth maps for a specific job

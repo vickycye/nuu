@@ -35,7 +35,7 @@ async def upload_video(
     Upload video file and start processing pipeline
     """
     try:
-        # Validate file type
+        # validate file type
         if not file.filename:
             raise HTTPException(status_code=400, detail="No filename provided")
         
@@ -46,20 +46,20 @@ async def upload_video(
                 detail=f"Unsupported file format. Supported formats: {', '.join(settings.SUPPORTED_VIDEO_FORMATS)}"
             )
         
-        # Check file size
+        # check file size
         if file.size and file.size > settings.MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=400, 
                 detail=f"File too large. Maximum size: {settings.MAX_FILE_SIZE // (1024*1024)}MB"
             )
         
-        # Generate job ID
+        # generate job ID
         job_id = str(uuid.uuid4())
         
-        # Save uploaded file
+        # save uploaded file
         file_path = await file_manager.save_upload(file, job_id)
         
-        # Create job record
+        # create job record
         job_info = JobInfo(
             job_id=job_id,
             status=JobStatus.UPLOADED,
@@ -75,7 +75,7 @@ async def upload_video(
         )
         job_db.create_job(job_info)
         
-        # Start background processing
+        # start background processing 
         background_tasks.add_task(processing_pipeline.process_video, job_id, file_path)
         
         logger.info(f"Video uploaded successfully for job {job_id}")
@@ -85,9 +85,93 @@ async def upload_video(
             status="uploaded",
             message="Video uploaded successfully. Processing started."
         )
-        
+    
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error uploading video: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error during upload")
+
+# upload a sample video from the sample_input directory for testing
+@router.post("/upload-sample/{sample_name}")
+async def upload_sample_video(
+    background_tasks: BackgroundTasks,
+    sample_name: str
+):
+    """
+    Upload a sample video from the sample_input directory for testing
+    """
+    try:
+        sample_path = settings.SAMPLE_DIR / sample_name
+        
+        if not sample_path.exists():
+            available_samples = [f.name for f in settings.SAMPLE_DIR.iterdir() if f.is_file()]
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Sample video '{sample_name}' not found. Available samples: {available_samples}"
+            )
+        
+        # Generate job ID
+        job_id = str(uuid.uuid4())
+        
+        # Copy sample to uploads directory
+        file_path = await file_manager.copy_sample_file(sample_path, job_id)
+        
+        # Create job record
+        job_info = JobInfo(
+            job_id=job_id,
+            status=JobStatus.UPLOADED,
+            progress=0,
+            message=f"Sample video '{sample_name}' uploaded successfully",
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            metadata={
+                'filename': sample_name,
+                'file_size': sample_path.stat().st_size,
+                'file_path': str(file_path),
+                'is_sample': True
+            }
+        )
+        job_db.create_job(job_info)
+        
+        # Start background processing
+        background_tasks.add_task(processing_pipeline.process_video, job_id, str(file_path))
+        
+        logger.info(f"Sample video uploaded successfully for job {job_id}")
+        
+        return UploadResponse(
+            job_id=job_id,
+            status="uploaded",
+            message=f"Sample video '{sample_name}' uploaded successfully. Processing started."
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading sample video: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during sample upload")
+
+# list available sample videos for testing
+@router.get("/samples")
+async def list_sample_videos():
+    """
+    List available sample videos for testing
+    """
+    try:
+        sample_files = []
+        for file_path in settings.SAMPLE_DIR.iterdir():
+            if file_path.is_file() and file_path.suffix.lower() in settings.SUPPORTED_VIDEO_FORMATS:
+                sample_files.append({
+                    'name': file_path.name,
+                    'size': file_path.stat().st_size,
+                    'size_mb': round(file_path.stat().st_size / (1024 * 1024), 2)
+                })
+        
+        return {
+            'samples': sample_files,
+            'count': len(sample_files)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing sample videos: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")

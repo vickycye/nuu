@@ -29,10 +29,30 @@ async def test_depth_estimation():
         logger.info("Please run test_video_processing.py first to extract frames")
         return
     
-    # Find test frames
-    test_frames = list(frames_dir.glob("test_job_001_frame_*.jpg"))
+    # Find test frames - try multiple patterns
+    test_frames = []
+    patterns = [
+        "test_job_001_frame_*.jpg",
+        "test_job_001_frame_*.png", 
+        "output_frame_*.jpg",
+        "output_frame_*.png",
+        "*_frame_*.jpg",
+        "*_frame_*.png",
+        "*.jpg",
+        "*.png"
+    ]
+    
+    for pattern in patterns:
+        test_frames = list(frames_dir.glob(pattern))
+        if test_frames:
+            logger.info(f"Found frames using pattern: {pattern}")
+            break
+    
     if not test_frames:
         logger.error("No test frames found")
+        logger.info("Available patterns tried:")
+        for pattern in patterns:
+            logger.info(f"  - {pattern}")
         logger.info("Please run test_video_processing.py first to extract frames")
         return
     
@@ -48,8 +68,8 @@ async def test_depth_estimation():
         logger.info("Try installing: pip install torch torchvision timm")
         return
     
-    # Test depth estimation on first few frames
-    test_frames = test_frames[:3]  # Test with first 3 frames
+    # Test depth estimation on all frames (or limit for testing)
+    # test_frames = test_frames[:3]  # Uncomment to limit to first 3 frames for quick testing
     logger.info(f"Testing depth estimation on {len(test_frames)} frames...")
     
     try:
