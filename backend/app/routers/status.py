@@ -18,5 +18,6 @@ async def get_job_status(job_id: str):
         "progress": job_info.progress,
         "message": job_info.message,
         "error": job_info.error,
+        "metadata": job_info.metadata,
         "updated_at": job_info.updated_at.isoformat() if job_info.updated_at else None
     }

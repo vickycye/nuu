@@ -28,29 +28,36 @@ function App() {
       
       switch (data.status) {
         case 'uploaded':
-          setStatus('complete')
-          setProcessingMessage('Video uploaded successfully!')
+          setStatus('processing')
+          setProcessingMessage('Video uploaded successfully! Starting processing...')
+          setTimeout(() => pollJobStatus(jobId), 1000)
           break
           
         case 'extracting_frames':
           setStatus('processing')
           setProcessingMessage('Extracting frames from video...')
+          setTimeout(() => pollJobStatus(jobId), 1000)
           break
           
         case 'estimating_depth':
           setStatus('processing')
           setProcessingMessage('Estimating depth information...')
+          setTimeout(() => pollJobStatus(jobId), 1000)
           break
           
         case 'reconstructing_3d':
           setStatus('processing')
           setProcessingMessage('Reconstructing 3D model...')
+          setTimeout(() => pollJobStatus(jobId), 1000)
           break
           
         case 'completed':
           setStatus('complete')
-          setModelUrl(data.modelUrl)
+          // Extract model URL from metadata
+          const modelPath = data.metadata?.model_paths?.glb || data.modelUrl
+          setModelUrl(modelPath)
           setProcessingMessage('3D model ready!')
+          console.log('Model URL:', modelPath)
           break
           
         case 'failed':
@@ -59,8 +66,8 @@ function App() {
           break
           
         default:
-          // Still processing, poll again in 2 seconds
-          setTimeout(() => pollJobStatus(jobId), 2000)
+          // Still processing, poll again in 1 second
+          setTimeout(() => pollJobStatus(jobId), 1000)
       }
     } catch (error) {
       console.error('Error polling job status:', error)
