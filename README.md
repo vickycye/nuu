@@ -1,5 +1,7 @@
 # nuu
 
+![nuu](frontend/public/nuu_transparent.png)
+
 ## Inspiration
 We've all been there: standing in IKEA, staring at a beautiful couch, wondering "will this actually fit in my apartment?" You pull out your phone, squinting at blurry photos of your living room, trying to mentally calculate if that couch would fit, and if the color is right. One of us is an avid floorplan enthusiast who sketches them in her free time, and the other is currently taking a computer vision class and kept thinking: why doesn't this technology exist yet?
 
