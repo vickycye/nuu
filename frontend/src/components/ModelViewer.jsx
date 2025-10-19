@@ -130,24 +130,38 @@ function Model({ url }) {
   // Center the model
   model.scene.position.sub(center)
   
-  // Scale the model to fit in a reasonable size (max dimension = 3 units)
+  // Scale the model to be much smaller and more manageable
   const maxDimension = Math.max(size.x, size.y, size.z)
   if (maxDimension > 0) {
-    const scale = 3 / maxDimension
+    const scale = 2 / maxDimension  // Much smaller scale - target 2 units max
     model.scene.scale.setScalar(scale)
     console.log('Model scaled by:', scale)
+    console.log('Original size:', size)
+    console.log('Scaled size:', { 
+      x: size.x * scale, 
+      y: size.y * scale, 
+      z: size.z * scale 
+    })
   }
+  
+  // Position the model at a better location for viewing
+  model.scene.position.set(0, 0, 0)  // Reset to origin
   
   console.log('Model position after:', model.scene.position)
   console.log('Model scale after:', model.scene.scale)
   
-  // Check if model has materials
+  // Check if model has materials and make them more visible
   model.scene.traverse((child) => {
     if (child.isMesh) {
       console.log('Found mesh:', child.name, 'Material:', child.material)
       if (child.material) {
         console.log('Material type:', child.material.type)
         console.log('Material color:', child.material.color)
+        
+        // Make the material more visible
+        child.material.color.setHex(0x00ff00) // Bright green
+        child.material.needsUpdate = true
+        console.log('Changed material color to green')
       }
     }
   })
@@ -155,6 +169,11 @@ function Model({ url }) {
   return (
     <group>
       <primitive object={model.scene} />
+      {/* Add a simple test cube at origin */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color="red" />
+      </mesh>
       {/* Add a wireframe box around the model for debugging */}
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[size.x, size.y, size.z]} />
@@ -168,6 +187,57 @@ function Model({ url }) {
 function OBJModel({ url }) {
   const model = useLoader(OBJLoader, url)
   return <primitive object={model} />
+}
+
+// Demo model component (simple geometric shapes)
+function DemoModel() {
+  return (
+    <group>
+      {/* Room walls */}
+      <mesh position={[0, 2, -5]}>
+        <planeGeometry args={[10, 4]} />
+        <meshStandardMaterial color="#f0f0f0" />
+      </mesh>
+      <mesh position={[-5, 2, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[10, 4]} />
+        <meshStandardMaterial color="#e0e0e0" />
+      </mesh>
+      <mesh position={[5, 2, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[10, 4]} />
+        <meshStandardMaterial color="#e0e0e0" />
+      </mesh>
+      
+      {/* Floor */}
+      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[10, 10]} />
+        <meshStandardMaterial color="#d0d0d0" />
+      </mesh>
+      
+      {/* Furniture - Table */}
+      <mesh position={[0, 0.5, -2]}>
+        <boxGeometry args={[2, 1, 1]} />
+        <meshStandardMaterial color="#8B4513" />
+      </mesh>
+      
+      {/* Furniture - Chair */}
+      <mesh position={[1.5, 0.3, -1]}>
+        <boxGeometry args={[0.5, 0.6, 0.5]} />
+        <meshStandardMaterial color="#654321" />
+      </mesh>
+      
+      {/* Furniture - Lamp */}
+      <mesh position={[-2, 1.5, -3]}>
+        <cylinderGeometry args={[0.1, 0.1, 3]} />
+        <meshStandardMaterial color="#FFD700" />
+      </mesh>
+      
+      {/* Ceiling light */}
+      <mesh position={[0, 3.8, 0]}>
+        <sphereGeometry args={[0.3]} />
+        <meshStandardMaterial color="#FFFF00" emissive="#FFFF00" emissiveIntensity={0.5} />
+      </mesh>
+    </group>
+  )
 }
 
 export default function ModelViewer({ modelUrl, onReset }) {

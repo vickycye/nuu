@@ -51,10 +51,19 @@ body {
   flex: 1;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: start;
   justify-content: center;
+  margin-top: 100px;
   margin-left: 3rem;
   margin-right: 3rem;
+}
+
+.big-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
 }
 
 .body {
@@ -90,10 +99,24 @@ body {
   text-align: start;
 }
 
-.instruction-title {
+.instruction-title, .about h3 {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 1rem;
+  font-size: 1.1srem;
   margin-bottom: 0.5rem;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+  text-align: start;
+}
+
+.about-title {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #cad7e3;
 }
 
 .status-container {

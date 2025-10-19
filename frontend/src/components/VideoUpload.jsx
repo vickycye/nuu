@@ -11,22 +11,6 @@ export default function VideoUpload({
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef(null)
 
-  const handleDemoMode = () => {
-    onUploadStart()
-    
-    // Simulate processing delay
-    setTimeout(() => {
-      onProcessingStart()
-      
-      // Simulate processing completion
-      setTimeout(() => {
-        // Use a simple geometric model (no external loading needed)
-        const demoModelUrl = 'demo-cube'
-        onComplete(demoModelUrl)
-      }, 2000)
-    }, 1000)
-  }
-
   const handleFileSelect = async (file) => {
     // Check if it's a video file
     if (file.type.startsWith('video/')) {
@@ -136,7 +120,7 @@ export default function VideoUpload({
           onClick={handleClick}
         >
           <div className="upload-content">
-            <div className="upload-icon">📹</div>
+            <div className="upload-icon"><img src={"../assets/nuu.JPG"} alt={"nuu"}/></div> 
             <h3>Upload Room Video or 3D Model</h3>
             <p>Drag and drop your file here, or click to browse</p>
             <p className="upload-hint">
